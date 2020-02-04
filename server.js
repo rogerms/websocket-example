@@ -1,23 +1,45 @@
-// example #1
-// const WebSocket = require('ws');
-// const ws = new WebSocket.Server({ port: 8080 });
+// example #1 
+const WebSocket = require('ws');
+const ws = new WebSocket.Server({ port: 8080 });
 
-// ws.on('connection', function connection(wsConnection) {
-//   wsConnection.on('message', function incoming(message) {
-//     console.log(`server received: ${message}`);
-//   });
 
-//   wsConnection.send('got your message!');
-// });
+ws.on('connection', function connection(wsConnection) {
+  wsConnection.on('message', function incoming(message) {
+    console.log(`server received^: ${message} ${ws.clients.size}`);
+    sendToAll(wsConnection, message);
+    //sendToOthers(wsConnection, message);
+  });
 
-// console.log("hello!!");
+  wsConnection.send('got your message!');
+});
 
+console.log("hello!!");
+ 
+function sendToAll(wsConnection, message) {
+    ws.clients.forEach(function each(client) {
+        if (client.readyState === WebSocket.OPEN) {
+            if(client.protocol == 'echo-protocol')
+            {
+                client.send(message);
+            }
+        }
+      });
+}
+
+function sendToOthers(wsConnection, message) {
+    ws.clients.forEach(function each(client) {
+        if (client !== wsConnection && client.readyState === WebSocket.OPEN) {
+          client.send(message);
+        }
+      });
+} 
 
 //---------------------------------------------------
 
 
 
 //example #2
+/*
 var WebSocketServer = require('websocket').server;
 var http = require('http');
  
@@ -58,7 +80,7 @@ wsServer.on('request', function(request) {
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
-            connection.sendUTF("_> "+message.utf8Data);
+            connection.sendUTF("_> "+message.utf8Data);        
         }
         else if (message.type === 'binary') {
             console.log('Received Binary Message of ' + message.binaryData.length + ' bytes');
@@ -69,3 +91,4 @@ wsServer.on('request', function(request) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
     });
 });
+*/
